@@ -2,14 +2,16 @@ use bevy::{
     prelude::*,
     sprite::{
         collide_aabb::{collide, Collision},
-        MaterialMesh2dBundle,
+        Anchor, MaterialMesh2dBundle,
     },
 };
 
-const COLOR_A: Color = Color::rgb(1.0, 0.0, 0.0);
-const NAME_A: &'static str = "Red";
-const COLOR_B: Color = Color::rgb(0.0, 0.0, 1.0);
-const NAME_B: &'static str = "Blue";
+const COLOR_A: Color = Color::rgb(0.41961, 1.0, 0.98431);
+const NAME_A: &'static str = "Blue";
+const COLOR_B: Color = Color::rgb(1.0, 0.62353, 0.41961);
+const NAME_B: &'static str = "Red";
+
+const BACKGROUND_COLOR: Color = Color::rgb(0.43922, 0.50196, 0.49804);
 
 const TILE_COUNT: i64 = 20;
 const TILE_SIZE: f32 = 25.0;
@@ -17,9 +19,7 @@ const BALL_SIZE: Vec3 = Vec3::new(25.0, 25.0, 0.0);
 
 const SCOREBOARD_FONT_SIZE: f32 = 40.0;
 const SCOREBOARD_COLOR: Color = Color::rgb(0.0, 0.0, 0.0);
-
-const SCOREBOARD_TOP: Val = Val::Px(10.0);
-const SCOREBOARD_LEFT: Val = Val::Px(10.0);
+const SCOREBOARD_PADDING: f32 = 10.0;
 
 const BALL_INITIAL_DIR_A: Vec2 = Vec2::new(1.0, 0.4);
 const BALL_INITIAL_DIR_B: Vec2 = Vec2::new(-1.0, -0.3);
@@ -63,6 +63,7 @@ struct BallBundle {
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_systems(Startup, setup)
         .add_systems(FixedUpdate, (apply_velocity, handle_collisions).chain())
         .add_systems(
@@ -126,7 +127,7 @@ impl BallBundle {
             vel: Velocity(vel),
             mat_mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(shape::Circle::default().into()).into(),
-                material: materials.add(ColorMaterial::from(team.color())),
+                material: materials.add(ColorMaterial::from(team.opposite().color())),
                 transform: Transform::from_translation(pos).with_scale(BALL_SIZE),
                 ..default()
             },
@@ -200,7 +201,7 @@ fn setup(
                     transform: Transform::from_translation(pos.extend(0.0))
                         .with_scale(Vec2::splat(TILE_SIZE).extend(0.0)),
                     sprite: Sprite {
-                        color: team.opposite().color(),
+                        color: team.color(),
                         ..default()
                     },
                     ..default()
@@ -236,20 +237,24 @@ fn setup(
         color: SCOREBOARD_COLOR,
         ..default()
     };
-    commands.spawn(
-        TextBundle::from_sections([
-            TextSection::new(format!("{}: ", Team::A.name()), style.clone()),
+
+    commands.spawn(Text2dBundle {
+        text: Text::from_sections([
+            //TextSection::new(format!("{}: ", Team::A.name()), style.clone()),
+            TextSection::new("", style.clone()),
             TextSection::new(init_count.to_string(), style.clone()),
-            TextSection::new(format!(", {}: ", Team::B.name()), style.clone()),
+            //TextSection::new(format!(", {}: ", Team::B.name()), style.clone()),
+            TextSection::new(" | ", style.clone()),
             TextSection::new(init_count.to_string(), style),
-        ])
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            top: SCOREBOARD_TOP,
-            left: SCOREBOARD_LEFT,
-            ..default()
-        }),
-    );
+        ]),
+        text_anchor: Anchor::TopCenter,
+        transform: Transform::from_translation(Vec3::new(
+            0.0,
+            tiles_start.y - SCOREBOARD_PADDING,
+            0.0,
+        )),
+        ..default()
+    });
 
     commands.insert_resource(Scoreboard {
         tiles_a: init_count,
@@ -323,7 +328,7 @@ fn handle_collisions(
 
 fn update_tile_colors(mut query: Query<(&IsTeam, &mut Sprite), With<Tile>>) {
     for (team, mut sprite) in &mut query {
-        sprite.color = team.0.opposite().color();
+        sprite.color = team.0.color();
     }
 }
 
