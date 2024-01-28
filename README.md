@@ -6,3 +6,5 @@ which derives from [this other tweet](https://twitter.com/nicolasdnl/status/1749
 I implemented the same basic idea using Bevy, for fun and to learn how Bevy
 works a bit. The code is heavily based on the [Breakout example](https://github.com/bevyengine/bevy/blob/main/examples/games/breakout.rs)
 from the Bevy project.
+
+Available on the web [here](https://spaar.dev/break-free/).
