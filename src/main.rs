@@ -234,20 +234,30 @@ fn setup(
     );
 
     let init_count = TILE_COUNT * TILE_COUNT / 2;
-    let style = TextStyle {
+    let text_style = TextStyle {
         font_size: SCOREBOARD_FONT_SIZE,
         color: SCOREBOARD_COLOR,
+        ..default()
+    };
+    let score_style_a = TextStyle {
+        font_size: SCOREBOARD_FONT_SIZE,
+        color: COLOR_A,
+        ..default()
+    };
+    let score_style_b = TextStyle {
+        font_size: SCOREBOARD_FONT_SIZE,
+        color: COLOR_B,
         ..default()
     };
 
     commands.spawn(Text2dBundle {
         text: Text::from_sections([
             //TextSection::new(format!("{}: ", Team::A.name()), style.clone()),
-            TextSection::new("", style.clone()),
-            TextSection::new(init_count.to_string(), style.clone()),
+            TextSection::new("", text_style.clone()),
+            TextSection::new(init_count.to_string(), score_style_a),
             //TextSection::new(format!(", {}: ", Team::B.name()), style.clone()),
-            TextSection::new(" | ", style.clone()),
-            TextSection::new(init_count.to_string(), style),
+            TextSection::new(" | ", text_style),
+            TextSection::new(init_count.to_string(), score_style_b),
         ]),
         text_anchor: Anchor::TopCenter,
         transform: Transform::from_translation(Vec3::new(
