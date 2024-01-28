@@ -6,13 +6,12 @@ use bevy::{
     },
     window::WindowResolution,
 };
+use rand::{thread_rng, Rng};
 
-const COLOR_A: Color = Color::rgb(0.41961, 1.0, 0.98431);
-const NAME_A: &'static str = "Blue";
-const COLOR_B: Color = Color::rgb(1.0, 0.62353, 0.41961);
-const NAME_B: &'static str = "Red";
+const COLOR_A: Color = Color::rgb(0.41569, 0.49804, 1.00000);
+const COLOR_B: Color = Color::rgb(0.94118, 0.62745, 0.37647);
 
-const BACKGROUND_COLOR: Color = Color::rgb(0.43922, 0.50196, 0.49804);
+const BACKGROUND_COLOR: Color = Color::rgb(0.46275, 0.39608, 0.41961);
 
 const TILE_COUNT: i64 = 20;
 const TILE_SIZE: f32 = 25.0;
@@ -22,8 +21,6 @@ const SCOREBOARD_FONT_SIZE: f32 = 40.0;
 const SCOREBOARD_COLOR: Color = Color::rgb(0.0, 0.0, 0.0);
 const SCOREBOARD_PADDING: f32 = 10.0;
 
-const BALL_INITIAL_DIR_A: Vec2 = Vec2::new(1.0, 0.4);
-const BALL_INITIAL_DIR_B: Vec2 = Vec2::new(-1.0, -0.3);
 const BALL_SPEED: f32 = 800.0;
 
 #[derive(Copy, Clone, PartialEq, Eq)]
@@ -86,13 +83,6 @@ fn main() {
 }
 
 impl Team {
-    fn name(self) -> &'static str {
-        match self {
-            Team::A => NAME_A,
-            Team::B => NAME_B,
-        }
-    }
-
     fn color(self) -> Color {
         match self {
             Team::A => COLOR_A,
@@ -172,17 +162,21 @@ fn setup(
 ) {
     commands.spawn(Camera2dBundle::default());
 
+    let mut rng = thread_rng();
+    let init_dir_a = Vec2::new(1.0, rng.gen_range(0.4..0.6));
+    let init_dir_b = Vec2::new(-1.0, -rng.gen_range(0.4..0.6));
+
     commands.spawn(BallBundle::new(
         Team::A,
         Vec3::new(-50.0, 0.0, 1.0),
-        BALL_INITIAL_DIR_A.normalize() * BALL_SPEED,
+        init_dir_a.normalize() * BALL_SPEED,
         &mut meshes,
         &mut materials,
     ));
     commands.spawn(BallBundle::new(
         Team::B,
         Vec3::new(50.0, 0.0, 1.0),
-        BALL_INITIAL_DIR_B.normalize() * BALL_SPEED,
+        init_dir_b.normalize() * BALL_SPEED,
         &mut meshes,
         &mut materials,
     ));
