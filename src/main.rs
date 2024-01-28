@@ -4,6 +4,7 @@ use bevy::{
         collide_aabb::{collide, Collision},
         Anchor, MaterialMesh2dBundle,
     },
+    window::WindowResolution,
 };
 
 const COLOR_A: Color = Color::rgb(0.41961, 1.0, 0.98431);
@@ -62,7 +63,14 @@ struct BallBundle {
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                canvas: Some("#break-free-canvas".into()),
+                resolution: WindowResolution::new(700.0, 720.0),
+                ..default()
+            }),
+            ..default()
+        }))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_systems(Startup, setup)
         .add_systems(FixedUpdate, (apply_velocity, handle_collisions).chain())
